@@ -1,0 +1,32 @@
+<Project Sdk="WixToolset.Sdk/6.0.2">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <OutputName>RockcliffeCourtBooker.Installer</OutputName>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <PublishDirectory Condition="'$(PublishDirectory)' == ''">$(MSBuildThisFileDirectory)..\..\artifacts\windows-x64</PublishDirectory>
+    <ProductVersion Condition="'$(ProductVersion)' == ''">1.0.0</ProductVersion>
+    <DefineConstants>ProductVersion=$(ProductVersion)</DefineConstants>
+    <!--
+      Files harvested into a strictly per-user profile location necessarily have
+      file key paths. ICE38, ICE64, and ICE91 assume a per-machine repair model
+      and are not actionable for this fixed PerUserProgramFilesFolder MSI.
+
+      WiX's Files element also copies PE version-resource languages without a way
+      to override metadata per harvested file. Some pinned Chromium and .NET
+      runtime binaries contain no language or a language list that cannot fit the
+      MSI File.Language column. ICE03 and ICE60 therefore reject third-party file
+      metadata even though those files are installed as opaque application data.
+      The build script separately enforces the ICE03 limit for every authored
+      SetProperty custom-action target, normalizes File.Language metadata to MSI's
+      versioned/unversioned rules, and then validates the final MSI again with
+      ICE03 and ICE60 enabled. All other MSI validation remains enabled.
+    -->
+    <SuppressIces>$(SuppressIces);ICE03;ICE38;ICE60;ICE64;ICE91</SuppressIces>
+  </PropertyGroup>
+  <ItemGroup>
+    <BindPath Include="$(PublishDirectory)">
+      <BindName>Publish</BindName>
+    </BindPath>
+    <PackageReference Include="WixToolset.Util.wixext" />
+  </ItemGroup>
+</Project>

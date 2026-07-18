@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <RootNamespace>RockcliffeCourtBooker.Notifications</RootNamespace>
+    <WindowsPackageType>None</WindowsPackageType>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <AppxGeneratePriEnabled>false</AppxGeneratePriEnabled>
+    <AppxGeneratePrisForPortableLibrariesEnabled>false</AppxGeneratePrisForPortableLibrariesEnabled>
+    <EnableCoreMrtTooling>false</EnableCoreMrtTooling>
+    <ExpandPriResources>false</ExpandPriResources>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" />
+  </ItemGroup>
+</Project>

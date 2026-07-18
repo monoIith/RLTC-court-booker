@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>RockcliffeCourtBooker.WorkerLogic</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../RockcliffeCourtBooker.Automation/RockcliffeCourtBooker.Automation.csproj" />
+    <ProjectReference Include="../RockcliffeCourtBooker.Core/RockcliffeCourtBooker.Core.csproj" />
+  </ItemGroup>
+</Project>

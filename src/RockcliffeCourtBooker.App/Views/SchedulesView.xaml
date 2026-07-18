@@ -1,0 +1,117 @@
+<UserControl x:Class="RockcliffeCourtBooker.App.Views.SchedulesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             AutomationProperties.Name="Schedules">
+    <Grid Margin="34,30,34,34">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="18" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Style="{StaticResource CardBorder}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border Width="42" Height="42" CornerRadius="10"
+                        Background="{Binding SchedulerTone, Converter={StaticResource StatusToneToBackgroundConverter}}">
+                    <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="18"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Foreground="{Binding SchedulerTone, Converter={StaticResource StatusToneToBrushConverter}}" />
+                </Border>
+                <StackPanel Grid.Column="1" Margin="14,0,20,0">
+                    <TextBlock Text="{Binding SchedulerStatus}" FontWeight="SemiBold" FontSize="16" />
+                    <TextBlock Text="{Binding SchedulerDetail}" Margin="0,4,0,0" Style="{StaticResource MutedText}" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                    <TextBlock Text="NEXT WINDOWS RUN" Style="{StaticResource MutedText}" FontSize="10" FontWeight="Bold" />
+                    <TextBlock Text="{Binding NextSchedulerRun}" Margin="0,5,0,0" FontWeight="SemiBold" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Style="{StaticResource CardBorder}" Padding="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid Margin="22,18,22,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Booking rules" Style="{StaticResource CardTitleText}" />
+                        <TextBlock Text="One rule may target each date or recurring weekday." Margin="0,4,0,0"
+                                   Style="{StaticResource MutedText}" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="_Refresh" Command="{Binding RefreshCommand}"
+                            AutomationProperties.Name="Refresh schedules" />
+                </Grid>
+
+                <Grid Grid.Row="1">
+                <DataGrid ItemsSource="{Binding Schedules}"
+                          SelectedItem="{Binding SelectedSchedule}"
+                          IsReadOnly="True"
+                          AutoGenerateColumns="False"
+                              BorderThickness="0,1,0,0"
+                              AutomationProperties.Name="Booking schedules">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="NAME" Binding="{Binding Name}" Width="1.2*" />
+                            <DataGridTextColumn Header="PLAYS ON" Binding="{Binding Pattern}" Width="1.2*" />
+                            <DataGridTextColumn Header="TIME PRIORITY" Binding="{Binding TimeChoices}" Width="1.1*" />
+                            <DataGridTextColumn Header="BOOKING" Binding="{Binding Booking}" Width="1*" />
+                            <DataGridTextColumn Header="COURTS" Binding="{Binding Courts}" Width="0.7*" />
+                            <DataGridTextColumn Header="NEXT ATTEMPT" Binding="{Binding NextAttempt}" Width="1.25*" />
+                            <DataGridTextColumn Header="STATUS" Binding="{Binding Status}" Width="0.8*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Visibility="{Binding HasSchedules, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                        <TextBlock Text="&#xE787;" FontFamily="Segoe MDL2 Assets" FontSize="32"
+                                   HorizontalAlignment="Center" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <TextBlock Margin="0,12,0,0" Text="No booking schedules yet" FontSize="17" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center" />
+                        <TextBlock Margin="0,5,0,0" Text="Use New booking to create your first rule."
+                                   Style="{StaticResource MutedText}" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="3" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Border Padding="12,8" CornerRadius="8"
+                    Visibility="{Binding HasStatus, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    Background="{Binding StatusTone, Converter={StaticResource StatusToneToBackgroundConverter}}">
+                <TextBlock Text="{Binding StatusMessage}"
+                           Foreground="{Binding StatusTone, Converter={StaticResource StatusToneToBrushConverter}}" />
+            </Border>
+            <Button Grid.Column="1" Margin="10,0,0,0" Content="_Edit" Command="{Binding EditCommand}" />
+            <Button Grid.Column="2" Margin="8,0,0,0" Content="{Binding SelectedSchedule.ToggleLabel, FallbackValue=Pause}"
+                    Command="{Binding ToggleEnabledCommand}" />
+            <Button Grid.Column="3" Margin="8,0,0,0" Content="_Delete" Command="{Binding DeleteCommand}"
+                    Style="{StaticResource DangerButton}" />
+            <Button Grid.Column="4" Margin="8,0,0,0" Content="_Inspect grid"
+                    Command="{Binding InspectNowCommand}" />
+            <Button Grid.Column="5" Margin="8,0,0,0" Content="_Dry run"
+                    Command="{Binding DryRunCommand}" />
+            <Button Grid.Column="6" Margin="8,0,0,0" Content="Book _now" Command="{Binding BookNowCommand}"
+                    Style="{StaticResource PrimaryButton}" />
+        </Grid>
+    </Grid>
+</UserControl>

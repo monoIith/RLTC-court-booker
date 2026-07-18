@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsTestProject>true</IsTestProject>
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+    <NoWarn>$(NoWarn);CA1707;xUnit1051</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/RockcliffeCourtBooker.Core/RockcliffeCourtBooker.Core.csproj" />
+    <ProjectReference Include="../../src/RockcliffeCourtBooker.Infrastructure/RockcliffeCourtBooker.Infrastructure.csproj" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+</Project>

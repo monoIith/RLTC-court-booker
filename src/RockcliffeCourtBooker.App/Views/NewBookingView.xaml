@@ -1,0 +1,225 @@
+<UserControl x:Class="RockcliffeCourtBooker.App.Views.NewBookingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             AutomationProperties.Name="New booking">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="34,30,34,40" MaxWidth="1120">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="2*" MinWidth="310" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel>
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding FormTitle}" Style="{StaticResource CardTitleText}" />
+                        <TextBlock Margin="0,5,0,18" Style="{StaticResource MutedText}"
+                                   Text="A one-time rule runs once; a weekly rule repeats until you pause it." />
+
+                        <TextBlock Text="Schedule name (optional)" Style="{StaticResource FieldLabelText}" />
+                        <TextBox Text="{Binding RuleName, UpdateSourceTrigger=PropertyChanged}"
+                                 AutomationProperties.Name="Schedule name" />
+
+                        <TextBlock Margin="0,18,0,5" Text="When should this repeat?" Style="{StaticResource FieldLabelText}" />
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton Content="One-time date" GroupName="RuleKind"
+                                         IsChecked="{Binding SelectedRuleKind, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=OneTime}" />
+                            <RadioButton Content="Weekly weekdays" GroupName="RuleKind"
+                                         IsChecked="{Binding SelectedRuleKind, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Weekly}" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,14,0,0"
+                                    Visibility="{Binding IsOneTime, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="Date to play" Style="{StaticResource FieldLabelText}" />
+                            <DatePicker SelectedDate="{Binding TargetDate}" Width="240" HorizontalAlignment="Left"
+                                        AutomationProperties.Name="Target play date" />
+                            <TextBlock Margin="0,6,0,0" Style="{StaticResource MutedText}"
+                                       Text="The unattended task starts at 7:58 AM, three calendar days earlier." />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,14,0,0"
+                                    Visibility="{Binding IsWeekly, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="Days to play" Style="{StaticResource FieldLabelText}" />
+                            <ItemsControl ItemsSource="{Binding Weekdays}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding ShortName}" IsChecked="{Binding IsSelected}"
+                                                  Margin="0,0,18,5" MinWidth="48" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Margin="0,18,0,0" Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="Preferred start times" Style="{StaticResource CardTitleText}" />
+                        <TextBlock Margin="0,5,0,16" Style="{StaticResource MutedText}"
+                                   Text="Times are attempted from top to bottom. At each time, courts follow your court priority." />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ComboBox ItemsSource="{Binding AvailableTimes}" SelectedItem="{Binding SelectedAvailableTime}"
+                                      DisplayMemberPath="Display" AutomationProperties.Name="Start time to add" />
+                            <Button Grid.Column="1" Margin="10,0,0,0" Content="_Add time" Command="{Binding AddTimeCommand}" />
+                        </Grid>
+                        <ItemsControl Margin="0,12,0,0" ItemsSource="{Binding TimePreferences}"
+                                      AutomationProperties.Name="Ordered preferred start times">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0,0,0,7" Padding="10,7" CornerRadius="7"
+                                            Background="{StaticResource SurfaceSubtleBrush}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Display}" FontWeight="SemiBold" />
+                                            <Button Grid.Column="1" Margin="4,0" Content="↑" Padding="8,2" MinHeight="26"
+                                                    Command="{Binding DataContext.MoveTimeUpCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                    CommandParameter="{Binding}" AutomationProperties.Name="Move time earlier in preference order" />
+                                            <Button Grid.Column="2" Margin="4,0" Content="↓" Padding="8,2" MinHeight="26"
+                                                    Command="{Binding DataContext.MoveTimeDownCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                    CommandParameter="{Binding}" AutomationProperties.Name="Move time later in preference order" />
+                                            <Button Grid.Column="3" Margin="4,0" Content="Remove" Style="{StaticResource SmallButton}"
+                                                    Command="{Binding DataContext.RemoveTimeCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                    CommandParameter="{Binding}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Margin="0,8,0,0" Text="No times added yet.">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource MutedText}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding TimePreferences.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <Border Margin="0,18,0,0" Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="Match format and players" Style="{StaticResource CardTitleText}" />
+                        <Grid Margin="0,16,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Booking type" Style="{StaticResource FieldLabelText}" />
+                                <ComboBox ItemsSource="{Binding BookingTypes}" SelectedItem="{Binding SelectedBookingType}"
+                                          AutomationProperties.Name="Singles or doubles" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Duration" Style="{StaticResource FieldLabelText}" />
+                                <ComboBox ItemsSource="{Binding DurationChoices}" SelectedItem="{Binding SelectedDuration}"
+                                          DisplayMemberPath="Display" AutomationProperties.Name="Booking duration" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,20,0,11">
+                            <TextBlock Text="Playing partners" Style="{StaticResource FieldLabelText}" />
+                            <TextBlock HorizontalAlignment="Right" Text="{Binding SelectedPlayerSummary}"
+                                       Foreground="{StaticResource BrandBrush}" FontWeight="SemiBold" FontSize="12" />
+                        </Grid>
+                        <TextBlock Margin="0,0,0,12" Style="{StaticResource MutedText}"
+                                   Text="The account holder is included automatically. Select only the other people who will play." />
+                        <ItemsControl ItemsSource="{Binding Players}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox Padding="8,6" Margin="0,0,0,4"
+                                              Content="{Binding DisplayName}"
+                                              IsChecked="{Binding IsSelected}"
+                                              IsEnabled="{Binding CanToggle}"
+                                              AutomationProperties.Name="{Binding DisplayName}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Text="No players are available. Validate your JSON on Setup first.">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource MutedText}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Players.Count}" Value="0"><Setter Property="Visibility" Value="Visible" /></DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2">
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="Clay court priority" Style="{StaticResource CardTitleText}" />
+                        <TextBlock Margin="0,5,0,14" Style="{StaticResource MutedText}"
+                                   Text="All four clay courts stay eligible. Drag-free arrow controls set the attempt order." />
+                        <ItemsControl ItemsSource="{Binding CourtPreferences}" AutomationProperties.Name="Clay court preference order">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0,0,0,7" Padding="10,8" CornerRadius="7" Background="{StaticResource SurfaceSubtleBrush}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Display}" FontWeight="SemiBold" />
+                                            <Button Grid.Column="1" Margin="4,0" Content="↑" Padding="8,2" MinHeight="26"
+                                                    Command="{Binding DataContext.MoveCourtUpCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                    CommandParameter="{Binding}" AutomationProperties.Name="Move court earlier in priority" />
+                                            <Button Grid.Column="2" Margin="4,0" Content="↓" Padding="8,2" MinHeight="26"
+                                                    Command="{Binding DataContext.MoveCourtDownCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                    CommandParameter="{Binding}" AutomationProperties.Name="Move court later in priority" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <Border Margin="0,18,0,0" Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="Submission authorization" Style="{StaticResource CardTitleText}" />
+                        <TextBlock Margin="0,5,0,14" Style="{StaticResource MutedText}"
+                                   Text="The worker can submit only after validating the exact court, time, players, duration, and a $0.00 total. Authorization expires after 30 days; edit and save the rule to renew it." />
+                        <CheckBox IsChecked="{Binding TermsAuthorized}" AutomationProperties.Name="Authorize legal conditions">
+                            <TextBlock TextWrapping="Wrap"
+                                       Text="I authorize this rule to accept Matchpoint's legal conditions when all safeguards pass." />
+                        </CheckBox>
+                    </StackPanel>
+                </Border>
+
+                <Border Margin="0,18,0,0" Padding="14" CornerRadius="8"
+                        Visibility="{Binding HasStatus, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Background="{Binding StatusTone, Converter={StaticResource StatusToneToBackgroundConverter}}">
+                    <TextBlock Text="{Binding StatusMessage}"
+                               Foreground="{Binding StatusTone, Converter={StaticResource StatusToneToBrushConverter}}" />
+                </Border>
+
+                <Button Margin="0,18,0,0" Content="{Binding SaveButtonText}" Command="{Binding SaveCommand}"
+                        Style="{StaticResource PrimaryButton}" MinHeight="44" HorizontalContentAlignment="Center"
+                        AutomationProperties.Name="Save booking schedule" />
+                <Button Margin="0,8,0,0" Content="Reset form" Command="{Binding ResetCommand}"
+                        HorizontalContentAlignment="Center" />
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

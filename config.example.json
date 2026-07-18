@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "account": {
+    "memberName": "Account Holder",
+    "username": "matchpoint-login",
+    "password": "replace-me"
+  },
+  "players": [
+    {
+      "id": "player-one",
+      "displayName": "Exact Matchpoint Display Name"
+    },
+    {
+      "id": "player-two",
+      "displayName": "Another Exact Display Name"
+    },
+    {
+      "id": "player-three",
+      "displayName": "Third Exact Display Name"
+    }
+  ]
+}
