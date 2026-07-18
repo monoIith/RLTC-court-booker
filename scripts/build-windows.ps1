@@ -121,7 +121,8 @@ try {
         Copy-Item -LiteralPath $sourcePackage -Destination (Join-Path $prerequisiteDirectory $packageName)
     }
 
-    dotnet build RockcliffeCourtBooker.slnx --configuration $Configuration --no-restore
+    dotnet build RockcliffeCourtBooker.slnx --configuration $Configuration --no-restore `
+        -p:WindowsAppSDKSelfContained=false
     if ($LASTEXITCODE -ne 0) { throw "Solution build failed." }
 
     # Playwright's generated installer script expects Microsoft.Playwright.dll

@@ -18,7 +18,8 @@ try {
     dotnet restore RockcliffeCourtBooker.slnx
     if ($LASTEXITCODE -ne 0) { throw "Solution restore failed." }
 
-    dotnet build RockcliffeCourtBooker.slnx --configuration Release --no-restore
+    dotnet build RockcliffeCourtBooker.slnx --configuration Release --no-restore `
+        -p:WindowsAppSDKSelfContained=false
     if ($LASTEXITCODE -ne 0) { throw "Solution build failed." }
 
     $playwrightScript = Join-Path (Split-Path -Parent $automationTestProject) "bin/Release/net10.0/playwright.ps1"
