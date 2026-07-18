@@ -10,7 +10,7 @@ if ([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT -or
 }
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
-$automationProject = Join-Path $repositoryRoot "src/RockcliffeCourtBooker.Automation/RockcliffeCourtBooker.Automation.csproj"
+$automationTestProject = Join-Path $repositoryRoot "tests/RockcliffeCourtBooker.Automation.Tests/RockcliffeCourtBooker.Automation.Tests.csproj"
 $browserDirectory = Join-Path $repositoryRoot "artifacts/verify-ms-playwright"
 
 Push-Location $repositoryRoot
@@ -18,10 +18,10 @@ try {
     dotnet restore RockcliffeCourtBooker.slnx
     if ($LASTEXITCODE -ne 0) { throw "Solution restore failed." }
 
-    dotnet build $automationProject --configuration Release --no-restore
-    if ($LASTEXITCODE -ne 0) { throw "Automation build failed." }
+    dotnet build RockcliffeCourtBooker.slnx --configuration Release --no-restore
+    if ($LASTEXITCODE -ne 0) { throw "Solution build failed." }
 
-    $playwrightScript = Join-Path (Split-Path -Parent $automationProject) "bin/Release/net10.0/playwright.ps1"
+    $playwrightScript = Join-Path (Split-Path -Parent $automationTestProject) "bin/Release/net10.0/playwright.ps1"
     if (-not (Test-Path -LiteralPath $playwrightScript -PathType Leaf)) {
         throw "The Playwright installer script was not produced."
     }
@@ -39,9 +39,6 @@ try {
         if ($LASTEXITCODE -ne 0) { throw "Playwright Chromium installation failed." }
 
         [Environment]::SetEnvironmentVariable("ROCKCLIFFE_RUN_PLAYWRIGHT_TESTS", "1", "Process")
-        dotnet build RockcliffeCourtBooker.slnx --configuration Release --no-restore
-        if ($LASTEXITCODE -ne 0) { throw "Solution build failed." }
-
         dotnet test RockcliffeCourtBooker.slnx --configuration Release --no-build --no-restore
         if ($LASTEXITCODE -ne 0) { throw "Automated tests failed." }
     }

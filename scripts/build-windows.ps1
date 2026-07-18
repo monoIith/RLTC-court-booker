@@ -29,7 +29,7 @@ $workerPublish = Join-Path $artifacts "worker-win-x64"
 $staging = Join-Path $artifacts "windows-x64"
 $installerOutput = Join-Path $artifacts "installer"
 $appProject = Join-Path $repositoryRoot "src/RockcliffeCourtBooker.App/RockcliffeCourtBooker.App.csproj"
-$automationProject = Join-Path $repositoryRoot "src/RockcliffeCourtBooker.Automation/RockcliffeCourtBooker.Automation.csproj"
+$automationTestProject = Join-Path $repositoryRoot "tests/RockcliffeCourtBooker.Automation.Tests/RockcliffeCourtBooker.Automation.Tests.csproj"
 $workerProject = Join-Path $repositoryRoot "src/RockcliffeCourtBooker.Worker/RockcliffeCourtBooker.Worker.csproj"
 $installerProject = Join-Path $repositoryRoot "installer/RockcliffeCourtBooker.Installer/RockcliffeCourtBooker.Installer.wixproj"
 $notificationAssets = Join-Path $repositoryRoot "src/RockcliffeCourtBooker.Notifications/obj/project.assets.json"
@@ -121,10 +121,12 @@ try {
         Copy-Item -LiteralPath $sourcePackage -Destination (Join-Path $prerequisiteDirectory $packageName)
     }
 
-    dotnet build $automationProject --configuration $Configuration --no-restore
-    if ($LASTEXITCODE -ne 0) { throw "Automation build failed." }
+    dotnet build RockcliffeCourtBooker.slnx --configuration $Configuration --no-restore
+    if ($LASTEXITCODE -ne 0) { throw "Solution build failed." }
 
-    $automationOutput = Join-Path (Split-Path -Parent $automationProject) "bin/$Configuration/net10.0"
+    # Playwright's generated installer script expects Microsoft.Playwright.dll
+    # beside it. Executable test output contains both; a class-library output does not.
+    $automationOutput = Join-Path (Split-Path -Parent $automationTestProject) "bin/$Configuration/net10.0"
     $playwrightScript = Join-Path $automationOutput "playwright.ps1"
     Assert-PackagedFile -Path $playwrightScript
 
@@ -141,7 +143,7 @@ try {
         }
 
         [Environment]::SetEnvironmentVariable("ROCKCLIFFE_RUN_PLAYWRIGHT_TESTS", "1", "Process")
-        dotnet test RockcliffeCourtBooker.slnx --configuration $Configuration --no-restore
+        dotnet test RockcliffeCourtBooker.slnx --configuration $Configuration --no-restore --no-build
         if ($LASTEXITCODE -ne 0) { throw "Automated tests failed." }
     }
     finally {
