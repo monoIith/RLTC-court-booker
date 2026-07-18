@@ -7,6 +7,10 @@
     <WindowsPackageType>None</WindowsPackageType>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <AppxGeneratePriEnabled>false</AppxGeneratePriEnabled>
+    <AppxGeneratePrisForPortableLibrariesEnabled>false</AppxGeneratePrisForPortableLibrariesEnabled>
+    <EnableCoreMrtTooling>false</EnableCoreMrtTooling>
+    <ExpandPriResources>false</ExpandPriResources>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../RockcliffeCourtBooker.Automation/RockcliffeCourtBooker.Automation.csproj" />

@@ -59,7 +59,7 @@
                   Return="check" />
 
     <SetProperty Id="UnregisterRockcliffeNotifications"
-                 Value="&quot;[INSTALLFOLDER]RockcliffeCourtBooker.Worker.exe&quot; --unregister-notifications"
+                 Value="&quot;[INSTALLFOLDER]worker\RockcliffeCourtBooker.Worker.exe&quot; --unregister-notifications"
                  Before="UnregisterRockcliffeNotifications"
                  Sequence="execute"
                  Condition="REMOVE = &quot;ALL&quot; AND NOT UPGRADINGPRODUCTCODE" />

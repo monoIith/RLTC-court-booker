@@ -135,7 +135,7 @@ internal sealed class WorkerProcessClient(string workerExecutable, string reques
                 false,
                 null,
                 null,
-                "RockcliffeCourtBooker.Worker.exe is missing beside the app; no booking was attempted.");
+                "RockcliffeCourtBooker.Worker.exe is missing from the installed worker directory; no booking was attempted.");
         }
 
         Directory.CreateDirectory(requestDirectory);

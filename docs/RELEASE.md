@@ -23,7 +23,7 @@ Release outputs are placed under `artifacts/installer`. Intermediate app, worker
 
 ## Installed layout
 
-The MSI installs to `%LocalAppData%\Programs\Rockcliffe Court Booker` and creates a Start menu shortcut for `RockcliffeCourtBooker.exe`. `RockcliffeCourtBooker.Worker.exe`, `release-manifest.json`, and the bundled `ms-playwright` browser directory use stable relative locations in the same install folder.
+The MSI installs to `%LocalAppData%\Programs\Rockcliffe Court Booker` and creates a Start menu shortcut for `RockcliffeCourtBooker.exe`. The independently self-contained worker is installed at `worker\RockcliffeCourtBooker.Worker.exe`; `release-manifest.json` and the bundled `ms-playwright` browser directory remain at the install root. Keeping the worker in its own directory prevents its Windows App SDK runtime files from colliding with the WPF app runtime files.
 
 The worker must resolve the bundled browser directory relative to its installed executable. It must not depend on a machine-wide browser cache, an Edge installation, or a browser download at booking time.
 
@@ -41,8 +41,8 @@ Verify all of the following before release:
 
 - installation is per-user and does not prompt for elevation;
 - the Start menu shortcut opens the UI while the machine has no separately installed .NET runtime;
-- `RockcliffeCourtBooker.Worker.exe` launches and the packaged `ms-playwright` tree contains `chrome.exe`;
-- `RockcliffeCourtBooker.Worker.exe --check-notifications` exits with code 0 after installation;
+- `worker\RockcliffeCourtBooker.Worker.exe` launches and the packaged `ms-playwright` tree contains `chrome.exe`;
+- `worker\RockcliffeCourtBooker.Worker.exe --check-notifications` exits with code 0 after installation;
 - a visible diagnostic run launches that packaged Chromium with network access disabled after installation, proving that no browser download occurs;
 - the scheduled task points to the installed worker and continues to work with the UI closed and Windows locked;
 - installing a higher three-part MSI version upgrades in place and preserves `court-booker.db`, logs, and diagnostics;

@@ -9,11 +9,12 @@ internal static class PlaywrightRuntime
             return Path.IsPathFullyQualified(explicitExecutablePath) && File.Exists(explicitExecutablePath);
         }
 
-        // Installed runs must always prefer the Chromium tree shipped beside the
-        // application. This prevents a machine-level Playwright environment
-        // variable from silently selecting a different browser revision.
-        var bundledPath = Path.Combine(AppContext.BaseDirectory, "ms-playwright");
-        if (Directory.Exists(bundledPath))
+        // Installed runs must always prefer the Chromium tree shipped with the
+        // application. The UI lives at the install root while the independently
+        // self-contained worker lives one directory below it.
+        var bundledPaths = ResolveBundledBrowserDirectories(AppContext.BaseDirectory);
+        var bundledPath = bundledPaths.FirstOrDefault(Directory.Exists);
+        if (bundledPath is not null)
         {
             Environment.SetEnvironmentVariable("PLAYWRIGHT_BROWSERS_PATH", bundledPath);
             return true;
@@ -34,5 +35,26 @@ internal static class PlaywrightRuntime
         return !string.IsNullOrWhiteSpace(configuredPath) &&
                Path.IsPathFullyQualified(configuredPath) &&
                Directory.Exists(configuredPath);
+    }
+
+    internal static IReadOnlyList<string> ResolveBundledBrowserDirectories(string baseDirectory)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(baseDirectory);
+
+        var normalizedBase = Path.GetFullPath(baseDirectory);
+        var directPath = Path.Combine(normalizedBase, "ms-playwright");
+        if (!string.Equals(
+                new DirectoryInfo(normalizedBase).Name,
+                "worker",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return [directPath];
+        }
+
+        return
+        [
+            directPath,
+            Path.GetFullPath(Path.Combine(normalizedBase, "..", "ms-playwright")),
+        ];
     }
 }

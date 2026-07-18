@@ -24,7 +24,10 @@ public partial class App : Application, IDisposable
 
             var configurationLoader = new ExternalConfigurationLoader();
             var configurationService = new ExternalJsonConfigurationService(configurationLoader, repository);
-            var workerExecutable = Path.Combine(AppContext.BaseDirectory, "RockcliffeCourtBooker.Worker.exe");
+            var workerExecutable = Path.Combine(
+                AppContext.BaseDirectory,
+                "worker",
+                "RockcliffeCourtBooker.Worker.exe");
             var bookingService = new SqliteBookingApplicationService(
                 repository,
                 configurationLoader,

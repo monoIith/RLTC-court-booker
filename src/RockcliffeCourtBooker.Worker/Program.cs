@@ -759,7 +759,8 @@ internal static class Program
                 return 0;
             }
 
-            var appExecutable = Path.Combine(AppContext.BaseDirectory, "RockcliffeCourtBooker.exe");
+            var appExecutable = Path.GetFullPath(
+                Path.Combine(AppContext.BaseDirectory, "..", "RockcliffeCourtBooker.exe"));
             if (!File.Exists(appExecutable))
             {
                 return 4;

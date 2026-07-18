@@ -27,6 +27,7 @@ $artifacts = Join-Path $repositoryRoot "artifacts"
 $appPublish = Join-Path $artifacts "app-win-x64"
 $workerPublish = Join-Path $artifacts "worker-win-x64"
 $staging = Join-Path $artifacts "windows-x64"
+$workerStaging = Join-Path $staging "worker"
 $installerOutput = Join-Path $artifacts "installer"
 $appProject = Join-Path $repositoryRoot "src/RockcliffeCourtBooker.App/RockcliffeCourtBooker.App.csproj"
 $automationTestProject = Join-Path $repositoryRoot "tests/RockcliffeCourtBooker.Automation.Tests/RockcliffeCourtBooker.Automation.Tests.csproj"
@@ -176,11 +177,13 @@ try {
     Assert-PackagedFile -Path (Join-Path $prerequisiteDirectory "Microsoft.WindowsAppRuntime.2.msix")
     Assert-PackagedFile -Path (Join-Path $prerequisiteDirectory "Microsoft.WindowsAppRuntime.Singleton.2.msix")
 
-    # The app and worker intentionally share one stable installation directory.
-    # A hash check prevents one self-contained publish from silently replacing a
-    # different runtime/dependency file from the other publish.
+    # Keep the independently self-contained WPF app and Windows App SDK worker in
+    # distinct directories. Their framework closures can legitimately contain
+    # different files with the same runtime filename (for example WindowsBase.dll),
+    # so flattening them would either corrupt one application or make valid builds
+    # fail depending on publish ordering.
     Copy-PublishTree -Source $appPublish -Destination $staging
-    Copy-PublishTree -Source $workerPublish -Destination $staging
+    Copy-PublishTree -Source $workerPublish -Destination $workerStaging
 
     $chromiumExecutables = @(Get-ChildItem -LiteralPath $browserDirectory -Recurse -File -Filter "chrome.exe")
     if ($chromiumExecutables.Count -lt 1) {
@@ -192,7 +195,7 @@ try {
         productVersion = $Version
         runtimeIdentifier = "win-x64"
         appExecutable = "RockcliffeCourtBooker.exe"
-        workerExecutable = "RockcliffeCourtBooker.Worker.exe"
+        workerExecutable = "worker/RockcliffeCourtBooker.Worker.exe"
         playwrightBrowserDirectory = "ms-playwright"
     }
     $manifest | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $staging "release-manifest.json") -Encoding utf8

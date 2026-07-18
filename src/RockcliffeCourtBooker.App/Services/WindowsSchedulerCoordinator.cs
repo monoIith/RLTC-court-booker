@@ -36,7 +36,7 @@ internal sealed class WindowsSchedulerCoordinator
         if (!File.Exists(workerExecutable))
         {
             return OperationResult.Failure(
-                "The booking worker executable is missing beside the app. Unattended booking was not scheduled.");
+                "The booking worker executable is missing from the installed worker directory. Unattended booking was not scheduled.");
         }
 
         WindowsSystemHealth health;
@@ -110,7 +110,7 @@ internal sealed class WindowsSchedulerCoordinator
                 false,
                 "Worker missing",
                 nextRun,
-                "RockcliffeCourtBooker.Worker.exe was not found beside the app.");
+                "RockcliffeCourtBooker.Worker.exe was not found in the installed worker directory.");
         }
 
         WindowsSystemHealth system;
