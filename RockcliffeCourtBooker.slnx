@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RockcliffeCourtBooker.App/RockcliffeCourtBooker.App.csproj" />
+    <Project Path="src/RockcliffeCourtBooker.Automation/RockcliffeCourtBooker.Automation.csproj" />
+    <Project Path="src/RockcliffeCourtBooker.Core/RockcliffeCourtBooker.Core.csproj" />
+    <Project Path="src/RockcliffeCourtBooker.Infrastructure/RockcliffeCourtBooker.Infrastructure.csproj" />
+    <Project Path="src/RockcliffeCourtBooker.Notifications/RockcliffeCourtBooker.Notifications.csproj" />
+    <Project Path="src/RockcliffeCourtBooker.Scheduling/RockcliffeCourtBooker.Scheduling.csproj" />
+    <Project Path="src/RockcliffeCourtBooker.Worker/RockcliffeCourtBooker.Worker.csproj" />
+    <Project Path="src/RockcliffeCourtBooker.WorkerLogic/RockcliffeCourtBooker.WorkerLogic.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/RockcliffeCourtBooker.Automation.Tests/RockcliffeCourtBooker.Automation.Tests.csproj" />
+    <Project Path="tests/RockcliffeCourtBooker.Core.Tests/RockcliffeCourtBooker.Core.Tests.csproj" />
+    <Project Path="tests/RockcliffeCourtBooker.Scheduling.Tests/RockcliffeCourtBooker.Scheduling.Tests.csproj" />
+    <Project Path="tests/RockcliffeCourtBooker.Worker.Tests/RockcliffeCourtBooker.Worker.Tests.csproj" />
+  </Folder>
+</Solution>

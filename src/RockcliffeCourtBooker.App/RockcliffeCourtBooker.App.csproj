@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>RockcliffeCourtBooker</AssemblyName>
+    <RootNamespace>RockcliffeCourtBooker.App</RootNamespace>
+    <ApplicationIcon />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../RockcliffeCourtBooker.Automation/RockcliffeCourtBooker.Automation.csproj" />
+    <ProjectReference Include="../RockcliffeCourtBooker.Core/RockcliffeCourtBooker.Core.csproj" />
+    <ProjectReference Include="../RockcliffeCourtBooker.Infrastructure/RockcliffeCourtBooker.Infrastructure.csproj" />
+    <ProjectReference Include="../RockcliffeCourtBooker.Scheduling/RockcliffeCourtBooker.Scheduling.csproj" />
+  </ItemGroup>
+</Project>

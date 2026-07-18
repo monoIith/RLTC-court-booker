@@ -1,0 +1,34 @@
+<Application x:Class="RockcliffeCourtBooker.App.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:RockcliffeCourtBooker.App.Converters"
+             xmlns:viewModels="clr-namespace:RockcliffeCourtBooker.App.ViewModels"
+             xmlns:views="clr-namespace:RockcliffeCourtBooker.App.Views"
+             ShutdownMode="OnMainWindowClose">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
+            <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+            <converters:StatusToneToBrushConverter x:Key="StatusToneToBrushConverter" />
+            <converters:StatusToneToBackgroundConverter x:Key="StatusToneToBackgroundConverter" />
+
+            <DataTemplate DataType="{x:Type viewModels:SetupViewModel}">
+                <views:SetupView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:NewBookingViewModel}">
+                <views:NewBookingView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:SchedulesViewModel}">
+                <views:SchedulesView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:HistoryViewModel}">
+                <views:HistoryView />
+            </DataTemplate>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

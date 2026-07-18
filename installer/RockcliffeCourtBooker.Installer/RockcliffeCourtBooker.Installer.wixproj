@@ -1,0 +1,23 @@
+<Project Sdk="WixToolset.Sdk/6.0.2">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <OutputName>RockcliffeCourtBooker.Installer</OutputName>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <PublishDirectory Condition="'$(PublishDirectory)' == ''">$(MSBuildThisFileDirectory)..\..\artifacts\windows-x64</PublishDirectory>
+    <ProductVersion Condition="'$(ProductVersion)' == ''">1.0.0</ProductVersion>
+    <DefineConstants>ProductVersion=$(ProductVersion)</DefineConstants>
+    <!--
+      Files harvested into a strictly per-user profile location necessarily have
+      file key paths. These ICEs assume a per-machine repair model and are not
+      actionable for this fixed, non-configurable PerUserProgramFilesFolder MSI.
+      All other MSI validation remains enabled.
+    -->
+    <SuppressIces>$(SuppressIces);ICE38;ICE64;ICE91</SuppressIces>
+  </PropertyGroup>
+  <ItemGroup>
+    <BindPath Include="$(PublishDirectory)">
+      <BindName>Publish</BindName>
+    </BindPath>
+    <PackageReference Include="WixToolset.Util.wixext" />
+  </ItemGroup>
+</Project>
