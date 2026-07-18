@@ -26,6 +26,21 @@ function Test-MsiLanguageField {
         if (-not [int]::TryParse($part, [ref]$languageId) -or $languageId -gt 65535) {
             return $false
         }
+
+        # ICE03 requires a registered language identifier, not merely an integer
+        # that fits in a 16-bit LANGID. Zero is MSI's neutral-language sentinel;
+        # every other value must resolve through the Windows/.NET culture table.
+        if ($languageId -ne 0) {
+            try {
+                $culture = [System.Globalization.CultureInfo]::GetCultureInfo($languageId)
+                if ($culture.LCID -ne $languageId) {
+                    return $false
+                }
+            }
+            catch [System.Globalization.CultureNotFoundException] {
+                return $false
+            }
+        }
     }
 
     return $true
