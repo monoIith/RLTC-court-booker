@@ -79,7 +79,6 @@ public sealed class SqliteBookingRepositoryTests
     public async Task Settings_RoundTripAbsolutePathWithoutSecretData()
     {
         using var directory = new TemporaryDirectory();
-        await using var repository = CreateRepository(directory);
         var configPath = directory.GetPath("account.json");
         var settings = new AppSettings
         {
@@ -88,12 +87,18 @@ public sealed class SqliteBookingRepositoryTests
             VisibleBrowserByDefault = true,
             UpdatedAtUtc = new DateTimeOffset(2026, 7, 17, 12, 0, 0, TimeSpan.Zero),
         };
+        string databasePath;
 
-        await repository.SaveSettingsAsync(settings);
-        var loaded = await repository.GetSettingsAsync();
+        await using (var repository = CreateRepository(directory))
+        {
+            await repository.SaveSettingsAsync(settings);
+            var loaded = await repository.GetSettingsAsync();
 
-        Assert.Equal(settings, loaded);
-        var databaseBytes = await File.ReadAllBytesAsync(repository.DatabasePath);
+            Assert.Equal(settings, loaded);
+            databasePath = repository.DatabasePath;
+        }
+
+        var databaseBytes = await File.ReadAllBytesAsync(databasePath);
         Assert.DoesNotContain("never-log-this"u8.ToArray(), databaseBytes);
     }
 
@@ -291,7 +296,11 @@ public sealed class SqliteBookingRepositoryTests
         using var directory = new TemporaryDirectory();
         await using var repository = CreateRepository(directory);
         await repository.InitializeAsync();
-        await using var connection = new SqliteConnection($"Data Source={repository.DatabasePath}");
+        await using var connection = new SqliteConnection(new SqliteConnectionStringBuilder
+        {
+            DataSource = repository.DatabasePath,
+            Pooling = false,
+        }.ToString());
         await connection.OpenAsync();
         await using var command = connection.CreateCommand();
         command.CommandText = "PRAGMA journal_mode;";
