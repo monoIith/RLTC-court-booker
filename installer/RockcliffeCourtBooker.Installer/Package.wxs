@@ -47,7 +47,7 @@
     </Component>
 
     <SetProperty Id="InstallNotificationDependencies"
-                 Value="&quot;[System64Folder]WindowsPowerShell\v1.0\powershell.exe&quot; -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;[#InstallNotificationDependenciesScript]&quot; -FrameworkPackagePath &quot;[INSTALLFOLDER]prerequisites\Microsoft.WindowsAppRuntime.2.msix&quot; -SingletonPackagePath &quot;[INSTALLFOLDER]prerequisites\Microsoft.WindowsAppRuntime.Singleton.2.msix&quot;"
+                 Value="&quot;[System64Folder]WindowsPowerShell\v1.0\powershell.exe&quot; -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;[#InstallNotificationDependenciesScript]&quot;"
                  Before="InstallNotificationDependencies"
                  Sequence="execute"
                  Condition="NOT (REMOVE = &quot;ALL&quot;)" />

@@ -1,14 +1,19 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)]
     [string]$FrameworkPackagePath,
 
-    [Parameter(Mandatory)]
     [string]$SingletonPackagePath
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+
+if ([string]::IsNullOrWhiteSpace($FrameworkPackagePath)) {
+    $FrameworkPackagePath = Join-Path $PSScriptRoot "prerequisites/Microsoft.WindowsAppRuntime.2.msix"
+}
+if ([string]::IsNullOrWhiteSpace($SingletonPackagePath)) {
+    $SingletonPackagePath = Join-Path $PSScriptRoot "prerequisites/Microsoft.WindowsAppRuntime.Singleton.2.msix"
+}
 
 function Install-PackageIfRequired {
     param([Parameter(Mandatory)][string]$Path)

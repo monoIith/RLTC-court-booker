@@ -33,6 +33,9 @@ $appProject = Join-Path $repositoryRoot "src/RockcliffeCourtBooker.App/Rockcliff
 $automationTestProject = Join-Path $repositoryRoot "tests/RockcliffeCourtBooker.Automation.Tests/RockcliffeCourtBooker.Automation.Tests.csproj"
 $workerProject = Join-Path $repositoryRoot "src/RockcliffeCourtBooker.Worker/RockcliffeCourtBooker.Worker.csproj"
 $installerProject = Join-Path $repositoryRoot "installer/RockcliffeCourtBooker.Installer/RockcliffeCourtBooker.Installer.wixproj"
+$installerSource = Join-Path $repositoryRoot "installer/RockcliffeCourtBooker.Installer/Package.wxs"
+$installerDirectory = Split-Path -Parent $installerProject
+$msiLanguageNormalizer = Join-Path $installerDirectory "NormalizeMsiFileLanguages.ps1"
 $notificationAssets = Join-Path $repositoryRoot "src/RockcliffeCourtBooker.Notifications/obj/project.assets.json"
 
 function Reset-ArtifactDirectory {
@@ -82,9 +85,53 @@ function Assert-PackagedFile {
     }
 }
 
+function Assert-CustomActionTargetLengths {
+    param([Parameter(Mandatory)][string]$Path)
+
+    [xml]$source = Get-Content -LiteralPath $Path -Raw
+    $namespaceManager = [System.Xml.XmlNamespaceManager]::new($source.NameTable)
+    $namespaceManager.AddNamespace("wix", "http://wixtoolset.org/schemas/v4/wxs")
+
+    foreach ($setProperty in $source.SelectNodes("//wix:SetProperty", $namespaceManager)) {
+        # SetProperty rows that schedule a same-named custom action are stored in
+        # CustomAction.Target, an MSI Formatted column limited to 255 characters.
+        $target = $setProperty.GetAttribute("Value")
+        if ($target.Length -gt 255) {
+            $id = $setProperty.GetAttribute("Id")
+            throw "Custom action target '$id' exceeds MSI's 255-character limit."
+        }
+    }
+}
+
+function Resolve-MsBuildProperty {
+    param(
+        [Parameter(Mandatory)][string]$ProjectPath,
+        [Parameter(Mandatory)][string]$PropertyName
+    )
+
+    $propertyOutput = @(& dotnet msbuild $ProjectPath `
+        "-getProperty:$PropertyName" `
+        -nologo `
+        -verbosity:quiet)
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not resolve MSBuild property '$PropertyName' for $ProjectPath."
+    }
+
+    $values = @($propertyOutput | ForEach-Object { $_.Trim() } | Where-Object {
+        -not [string]::IsNullOrWhiteSpace($_)
+    })
+    if ($values.Count -ne 1) {
+        throw "MSBuild returned $($values.Count) values for '$PropertyName'; expected exactly one."
+    }
+
+    return $values[0]
+}
+
 foreach ($directory in @($appPublish, $workerPublish, $staging, $installerOutput)) {
     Reset-ArtifactDirectory -Path $directory
 }
+
+Assert-CustomActionTargetLengths -Path $installerSource
 
 Push-Location $repositoryRoot
 try {
@@ -224,6 +271,34 @@ if ($msiFiles.Count -ne 1) {
 }
 
 $msi = $msiFiles[0]
+$wixPdbFiles = @(Get-ChildItem -LiteralPath $installerOutput -Recurse -File -Filter "*.wixpdb")
+if ($wixPdbFiles.Count -ne 1) {
+    throw "Expected exactly one WiX PDB in $installerOutput, but found $($wixPdbFiles.Count)."
+}
+$wixPdb = $wixPdbFiles[0]
+
+$wixToolDirectory = Resolve-MsBuildProperty `
+    -ProjectPath $installerProject `
+    -PropertyName "WixBinDir"
+$dtfAssembly = Join-Path $wixToolDirectory "WixToolset.Dtf.WindowsInstaller.dll"
+$wixTool = Join-Path $wixToolDirectory "wix.dll"
+Assert-PackagedFile -Path $msiLanguageNormalizer
+Assert-PackagedFile -Path $dtfAssembly
+Assert-PackagedFile -Path $wixTool
+
+# WiX faithfully copies PE version-resource language metadata, including invalid
+# values embedded in a few third-party Chromium/.NET binaries. Normalize those
+# values to MSI's versioned/unversioned rules, then re-run the complete MSI
+# validation suite. This keeps ICE03/ICE60 effective on the final database.
+& $msiLanguageNormalizer -MsiPath $msi.FullName -DtfAssemblyPath $dtfAssembly
+
+dotnet exec --roll-forward Major $wixTool msi validate $msi.FullName `
+    -pdb $wixPdb.FullName `
+    -sice ICE38 `
+    -sice ICE64 `
+    -sice ICE91
+if ($LASTEXITCODE -ne 0) { throw "Normalized MSI validation failed." }
+
 $msiHash = (Get-FileHash -LiteralPath $msi.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
 "$msiHash  $($msi.Name)" | Set-Content -LiteralPath "$($msi.FullName).sha256" -Encoding ascii
 
